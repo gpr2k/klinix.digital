@@ -27,7 +27,7 @@ stable
 security definer
 set search_path = public
 as $$
-  select role from public.users where id = auth.uid();
+  select role::public.user_role from public.users where id = auth.uid();
 $$;
 
 
