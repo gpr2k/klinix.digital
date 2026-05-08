@@ -58,3 +58,19 @@ export interface ProfessionalInput {
   is_active: boolean;
   schedules: ScheduleInput[];
 }
+
+export interface Client {
+  id: string;
+  full_name: string;
+  whatsapp: string | null;
+  birth_date: string | null;
+  acquisition_channel: string | null;
+  created_at: string;
+}
+
+export interface ClientInput {
+  full_name: string;
+  whatsapp: string | null;
+  birth_date: string | null;
+  acquisition_channel: string | null;
+}
