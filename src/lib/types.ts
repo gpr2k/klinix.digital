@@ -74,3 +74,33 @@ export interface ClientInput {
   birth_date: string | null;
   acquisition_channel: string | null;
 }
+
+export interface Anamnesis {
+  client_id: string;
+  skin_type: string | null;
+  allergies: string | null;
+  medications: string | null;
+  restrictions: string | null;
+  is_pregnant_or_nursing: boolean;
+}
+
+export type AnamnesisInput = Omit<Anamnesis, 'client_id'>;
+
+export type AppointmentStatus = 'SCHEDULED' | 'COMPLETED' | 'CANCELED';
+
+export interface Appointment {
+  id: string;
+  client_id: string;
+  professional_id: string;
+  service_id: string;
+  appointment_date: string;
+  start_time: TimeString;
+  end_time: TimeString;
+  status: AppointmentStatus;
+  price_charged: number;
+}
+
+export interface AppointmentRecord extends Appointment {
+  professional: Pick<Professional, 'id' | 'name'> | null;
+  service: Pick<Service, 'id' | 'name'> | null;
+}

@@ -1,4 +1,5 @@
 import { useMemo, useState } from 'react';
+import { Link } from 'react-router-dom';
 import { Pencil, Plus, Search, Trash2 } from 'lucide-react';
 import { ClientForm } from '@/components/ClientForm';
 import { ConfirmDialog } from '@/components/ConfirmDialog';
@@ -188,8 +189,13 @@ export function Clientes() {
               <tbody className="divide-y divide-slate-100">
                 {filteredClients.map((client) => (
                   <tr key={client.id} className="hover:bg-slate-50">
-                    <td className="px-4 py-3 font-medium text-slate-900">
-                      {client.full_name}
+                    <td className="px-4 py-3">
+                      <Link
+                        to={`/clientes/${client.id}`}
+                        className="font-medium text-slate-900 hover:text-brand-700 hover:underline"
+                      >
+                        {client.full_name}
+                      </Link>
                     </td>
                     <td className="px-4 py-3 tabular-nums text-slate-600">
                       {client.whatsapp ? formatWhatsapp(client.whatsapp) : '—'}
