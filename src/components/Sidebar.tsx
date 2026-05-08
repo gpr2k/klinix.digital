@@ -1,5 +1,6 @@
 import { NavLink } from 'react-router-dom';
-import { X } from 'lucide-react';
+import { LogOut, X } from 'lucide-react';
+import { useAuth } from '@/contexts/AuthContext';
 import { APP_ROUTES } from '@/lib/routes';
 
 interface Props {
@@ -9,6 +10,23 @@ interface Props {
 }
 
 export function Sidebar({ isMobileOpen, onCloseMobile }: Props) {
+  const { user, signOut } = useAuth();
+  const role = user?.role ?? null;
+
+  const visibleRoutes = APP_ROUTES.filter((route) => {
+    if (!route.allowedRoles) return true;
+    if (!role) return false;
+    return route.allowedRoles.includes(role);
+  });
+
+  const initials =
+    (user?.name ?? user?.email ?? '?')
+      .split(/\s+/)
+      .map((part) => part.charAt(0))
+      .join('')
+      .slice(0, 2)
+      .toUpperCase() || '?';
+
   return (
     <>
       {/* Mobile backdrop */}
@@ -52,7 +70,7 @@ export function Sidebar({ isMobileOpen, onCloseMobile }: Props) {
 
         <nav className="flex-1 overflow-y-auto p-3">
           <ul className="flex flex-col gap-1">
-            {APP_ROUTES.map(({ path, label, icon: Icon }) => (
+            {visibleRoutes.map(({ path, label, icon: Icon }) => (
               <li key={path}>
                 <NavLink
                   to={path}
@@ -74,8 +92,35 @@ export function Sidebar({ isMobileOpen, onCloseMobile }: Props) {
           </ul>
         </nav>
 
-        <div className="border-t border-slate-200 px-5 py-3 text-xs text-slate-500">
-          v0.1.0
+        <div className="border-t border-slate-200 px-3 py-3">
+          {user ? (
+            <div className="flex items-center gap-2 rounded-lg bg-slate-50 px-2 py-2">
+              <span className="grid h-8 w-8 shrink-0 place-items-center rounded-full bg-brand-100 text-xs font-semibold text-brand-700">
+                {initials}
+              </span>
+              <div className="min-w-0 flex-1 leading-tight">
+                <p className="truncate text-xs font-semibold text-slate-900">
+                  {user.name ?? user.email ?? '—'}
+                </p>
+                <p className="truncate text-[10px] uppercase tracking-wide text-slate-500">
+                  {role ?? 'sem perfil'}
+                </p>
+              </div>
+              <button
+                type="button"
+                onClick={() => {
+                  void signOut();
+                }}
+                aria-label="Sair"
+                title="Sair"
+                className="rounded-md p-1 text-slate-500 hover:bg-slate-200 hover:text-slate-800"
+              >
+                <LogOut size={16} />
+              </button>
+            </div>
+          ) : (
+            <p className="px-2 text-xs text-slate-500">v0.1.0</p>
+          )}
         </div>
       </aside>
     </>
