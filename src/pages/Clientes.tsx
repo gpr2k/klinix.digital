@@ -5,6 +5,7 @@ import { ClientForm } from '@/components/ClientForm';
 import { ConfirmDialog } from '@/components/ConfirmDialog';
 import { Modal } from '@/components/Modal';
 import { PageHeader } from '@/components/PageHeader';
+import { useRole } from '@/components/RoleGate';
 import { useClients } from '@/hooks/useClients';
 import { formatBirthDate } from '@/lib/format';
 import { digitsOnly, formatWhatsapp } from '@/lib/whatsapp';
@@ -29,6 +30,8 @@ function matchesQuery(client: Client, query: string): boolean {
 export function Clientes() {
   const clients = useClients();
   const [search, setSearch] = useState('');
+  const role = useRole();
+  const isAdmin = role === 'ADMIN';
 
   const [editing, setEditing] = useState<Client | null>(null);
   const [isFormOpen, setIsFormOpen] = useState(false);
@@ -216,14 +219,16 @@ export function Clientes() {
                         >
                           <Pencil size={16} />
                         </button>
-                        <button
-                          type="button"
-                          onClick={() => requestDelete(client)}
-                          aria-label={`Excluir ${client.full_name}`}
-                          className="rounded p-1.5 text-slate-500 hover:bg-rose-50 hover:text-rose-700"
-                        >
-                          <Trash2 size={16} />
-                        </button>
+                        {isAdmin ? (
+                          <button
+                            type="button"
+                            onClick={() => requestDelete(client)}
+                            aria-label={`Excluir ${client.full_name}`}
+                            className="rounded p-1.5 text-slate-500 hover:bg-rose-50 hover:text-rose-700"
+                          >
+                            <Trash2 size={16} />
+                          </button>
+                        ) : null}
                       </div>
                     </td>
                   </tr>

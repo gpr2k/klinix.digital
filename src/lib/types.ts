@@ -1,3 +1,17 @@
+export type UserRole = 'ADMIN' | 'SECRETARY';
+
+export interface AuditLogEntry {
+  id: string;
+  user_id: string | null;
+  action: string;
+  details: Record<string, unknown> | null;
+  created_at: string;
+}
+
+export interface AuditLogWithUser extends AuditLogEntry {
+  user: { id: string; name: string | null; email: string | null } | null;
+}
+
 export interface Category {
   id: string;
   name: string;

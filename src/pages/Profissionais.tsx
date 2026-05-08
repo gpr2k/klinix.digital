@@ -4,6 +4,7 @@ import { ConfirmDialog } from '@/components/ConfirmDialog';
 import { Modal } from '@/components/Modal';
 import { PageHeader } from '@/components/PageHeader';
 import { ProfessionalForm } from '@/components/ProfessionalForm';
+import { useRole } from '@/components/RoleGate';
 import { useProfessionals } from '@/hooks/useProfessionals';
 import { timeToMinutes } from '@/lib/format';
 import { WEEKDAYS } from '@/lib/schedule';
@@ -44,6 +45,8 @@ function weeklyHours(schedules: ProfessionalSchedule[]): string {
 
 export function Profissionais() {
   const professionals = useProfessionals();
+  const role = useRole();
+  const isAdmin = role === 'ADMIN';
 
   const [editing, setEditing] = useState<ProfessionalWithSchedules | null>(
     null,
@@ -108,14 +111,16 @@ export function Profissionais() {
         title="Profissionais"
         description="Equipe e suas grades de horários."
         actions={
-          <button
-            type="button"
-            onClick={openCreate}
-            className="inline-flex items-center gap-2 rounded-lg bg-brand-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-brand-700"
-          >
-            <Plus size={16} />
-            Novo profissional
-          </button>
+          isAdmin ? (
+            <button
+              type="button"
+              onClick={openCreate}
+              className="inline-flex items-center gap-2 rounded-lg bg-brand-600 px-4 py-2 text-sm font-medium text-white shadow-sm hover:bg-brand-700"
+            >
+              <Plus size={16} />
+              Novo profissional
+            </button>
+          ) : null
         }
       />
 
@@ -193,24 +198,28 @@ export function Profissionais() {
                       {weeklyHours(professional.schedules)}
                     </td>
                     <td className="px-4 py-3 text-right">
-                      <div className="flex justify-end gap-1">
-                        <button
-                          type="button"
-                          onClick={() => openEdit(professional)}
-                          aria-label={`Editar ${professional.name}`}
-                          className="rounded p-1.5 text-slate-500 hover:bg-slate-100 hover:text-slate-900"
-                        >
-                          <Pencil size={16} />
-                        </button>
-                        <button
-                          type="button"
-                          onClick={() => requestDelete(professional)}
-                          aria-label={`Excluir ${professional.name}`}
-                          className="rounded p-1.5 text-slate-500 hover:bg-rose-50 hover:text-rose-700"
-                        >
-                          <Trash2 size={16} />
-                        </button>
-                      </div>
+                      {isAdmin ? (
+                        <div className="flex justify-end gap-1">
+                          <button
+                            type="button"
+                            onClick={() => openEdit(professional)}
+                            aria-label={`Editar ${professional.name}`}
+                            className="rounded p-1.5 text-slate-500 hover:bg-slate-100 hover:text-slate-900"
+                          >
+                            <Pencil size={16} />
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => requestDelete(professional)}
+                            aria-label={`Excluir ${professional.name}`}
+                            className="rounded p-1.5 text-slate-500 hover:bg-rose-50 hover:text-rose-700"
+                          >
+                            <Trash2 size={16} />
+                          </button>
+                        </div>
+                      ) : (
+                        <span className="text-xs text-slate-400">—</span>
+                      )}
                     </td>
                   </tr>
                 ))}
