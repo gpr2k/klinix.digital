@@ -25,3 +25,11 @@ export function timeToMinutes(time: string): number {
 export function toTimeInputValue(time: string): string {
   return time.slice(0, 5);
 }
+
+/** Formats a "YYYY-MM-DD" date string as "DD/MM/YYYY". Returns "—" when null. */
+export function formatBirthDate(date: string | null): string {
+  if (!date) return '—';
+  const [year, month, day] = date.split('-');
+  if (!year || !month || !day) return date;
+  return `${day}/${month}/${year}`;
+}
