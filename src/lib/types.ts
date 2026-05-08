@@ -103,4 +103,23 @@ export interface Appointment {
 export interface AppointmentRecord extends Appointment {
   professional: Pick<Professional, 'id' | 'name'> | null;
   service: Pick<Service, 'id' | 'name'> | null;
+  client?: Pick<Client, 'id' | 'full_name'> | null;
+}
+
+export interface AppointmentInput {
+  client_id: string;
+  professional_id: string;
+  service_id: string;
+  appointment_date: string;
+  start_time: TimeString;
+  end_time: TimeString;
+  status: AppointmentStatus;
+  price_charged: number;
+}
+
+export interface ServiceLite {
+  id: string;
+  name: string;
+  duration_minutes: number;
+  price: number;
 }
