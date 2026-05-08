@@ -117,6 +117,11 @@ export function shiftDay(iso: string, delta: number): string {
   return toISODate(cursor.getFullYear(), cursor.getMonth(), cursor.getDate());
 }
 
+/** Returns the first and last "YYYY-MM-DD" of the month containing `today`. */
+export function currentMonthBounds(): { start: string; end: string } {
+  return monthBounds(todayISO());
+}
+
 /** Returns the first ("YYYY-MM-01") and last ("YYYY-MM-DD") days of the month
  *  containing `iso`. */
 export function monthBounds(iso: string): { start: string; end: string } {
