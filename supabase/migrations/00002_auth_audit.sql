@@ -197,6 +197,51 @@ drop policy if exists "dev_all_client_anamnesis_anon"       on public.client_ana
 drop policy if exists "dev_all_appointments_anon"           on public.appointments;
 drop policy if exists "dev_all_audit_logs_anon"             on public.audit_logs;
 
+-- Drop policies criadas por execuções anteriores deste mesmo arquivo
+-- (idempotente quando o script é re-aplicado).
+drop policy if exists "users_admin_read_all"           on public.users;
+drop policy if exists "users_self_read"                on public.users;
+drop policy if exists "users_admin_write"              on public.users;
+drop policy if exists "users_admin_update"             on public.users;
+drop policy if exists "users_admin_delete"             on public.users;
+
+drop policy if exists "categories_select_all_auth"     on public.categories;
+drop policy if exists "categories_admin_insert"        on public.categories;
+drop policy if exists "categories_admin_update"        on public.categories;
+drop policy if exists "categories_admin_delete"        on public.categories;
+
+drop policy if exists "services_select_all_auth"       on public.services;
+drop policy if exists "services_admin_insert"          on public.services;
+drop policy if exists "services_admin_update"          on public.services;
+drop policy if exists "services_admin_delete"          on public.services;
+
+drop policy if exists "professionals_select_all_auth"  on public.professionals;
+drop policy if exists "professionals_admin_insert"     on public.professionals;
+drop policy if exists "professionals_admin_update"     on public.professionals;
+drop policy if exists "professionals_admin_delete"     on public.professionals;
+
+drop policy if exists "schedules_select_all_auth"      on public.professional_schedules;
+drop policy if exists "schedules_admin_insert"         on public.professional_schedules;
+drop policy if exists "schedules_admin_update"         on public.professional_schedules;
+drop policy if exists "schedules_admin_delete"         on public.professional_schedules;
+
+drop policy if exists "clients_select_all_auth"        on public.clients;
+drop policy if exists "clients_write_authenticated"    on public.clients;
+drop policy if exists "clients_update_authenticated"   on public.clients;
+drop policy if exists "clients_admin_delete"           on public.clients;
+
+drop policy if exists "anamnesis_select_all_auth"      on public.client_anamnesis;
+drop policy if exists "anamnesis_write_authenticated"  on public.client_anamnesis;
+drop policy if exists "anamnesis_update_authenticated" on public.client_anamnesis;
+drop policy if exists "anamnesis_admin_delete"         on public.client_anamnesis;
+
+drop policy if exists "appointments_select_all_auth"   on public.appointments;
+drop policy if exists "appointments_write_authenticated"  on public.appointments;
+drop policy if exists "appointments_update_authenticated" on public.appointments;
+drop policy if exists "appointments_admin_delete"      on public.appointments;
+
+drop policy if exists "audit_logs_admin_select"        on public.audit_logs;
+
 
 -- ---- users ------------------------------------------------------------------
 
