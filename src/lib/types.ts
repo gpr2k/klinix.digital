@@ -21,3 +21,40 @@ export interface ServiceInput {
   duration_minutes: number;
   price: number;
 }
+
+export type DayOfWeek = 0 | 1 | 2 | 3 | 4 | 5 | 6;
+
+export interface Professional {
+  id: string;
+  name: string;
+  is_active: boolean;
+}
+
+/** "HH:MM:SS" returned by Postgres `time` columns. */
+export type TimeString = string;
+
+export interface ProfessionalSchedule {
+  id: string;
+  professional_id: string;
+  day_of_week: DayOfWeek;
+  start_time: TimeString;
+  end_time: TimeString;
+  is_working: boolean;
+}
+
+export interface ProfessionalWithSchedules extends Professional {
+  schedules: ProfessionalSchedule[];
+}
+
+export interface ScheduleInput {
+  day_of_week: DayOfWeek;
+  start_time: TimeString;
+  end_time: TimeString;
+  is_working: boolean;
+}
+
+export interface ProfessionalInput {
+  name: string;
+  is_active: boolean;
+  schedules: ScheduleInput[];
+}
