@@ -33,3 +33,16 @@ export function formatBirthDate(date: string | null): string {
   if (!year || !month || !day) return date;
   return `${day}/${month}/${year}`;
 }
+
+/** Formats a "YYYY-MM-DD" date string as "DD/MM/YYYY". Caller guarantees
+ *  non-null. */
+export function formatDate(date: string): string {
+  const [year, month, day] = date.split('-');
+  if (!year || !month || !day) return date;
+  return `${day}/${month}/${year}`;
+}
+
+/** Formats a Postgres `time` value ("HH:MM:SS" or "HH:MM") as "HH:MM". */
+export function formatTime(time: string): string {
+  return time.slice(0, 5);
+}

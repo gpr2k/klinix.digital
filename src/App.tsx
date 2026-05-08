@@ -2,6 +2,7 @@ import { Route, Routes } from 'react-router-dom';
 import { AppLayout } from '@/layouts/AppLayout';
 import { Agenda } from '@/pages/Agenda';
 import { Clientes } from '@/pages/Clientes';
+import { ClienteProfile } from '@/pages/ClienteProfile';
 import { Dashboard } from '@/pages/Dashboard';
 import { NotFound } from '@/pages/NotFound';
 import { Profissionais } from '@/pages/Profissionais';
@@ -13,6 +14,7 @@ function App() {
       <Route element={<AppLayout />}>
         <Route index element={<Dashboard />} />
         <Route path="clientes" element={<Clientes />} />
+        <Route path="clientes/:id" element={<ClienteProfile />} />
         <Route path="agenda" element={<Agenda />} />
         <Route path="servicos" element={<Servicos />} />
         <Route path="profissionais" element={<Profissionais />} />

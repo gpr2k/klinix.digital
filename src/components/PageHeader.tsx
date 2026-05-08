@@ -2,7 +2,7 @@ import type { ReactNode } from 'react';
 
 interface Props {
   title: string;
-  description?: string;
+  description?: ReactNode;
   actions?: ReactNode;
 }
 
@@ -14,7 +14,7 @@ export function PageHeader({ title, description, actions }: Props) {
           {title}
         </h1>
         {description ? (
-          <p className="mt-1 text-sm text-slate-600">{description}</p>
+          <div className="mt-1 text-sm text-slate-600">{description}</div>
         ) : null}
       </div>
       {actions ? <div className="flex items-center gap-2">{actions}</div> : null}
