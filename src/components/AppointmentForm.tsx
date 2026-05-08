@@ -1,10 +1,22 @@
 import { useEffect, useMemo, useState } from 'react';
 import { SearchableClientSelect } from './SearchableClientSelect';
 import { useActiveProfessionals } from '@/hooks/useActiveProfessionals';
+import { useDayAppointments } from '@/hooks/useDayAppointments';
+import { useProfessionalSchedules } from '@/hooks/useProfessionalSchedules';
 import { useServiceList } from '@/hooks/useServiceList';
-import { addMinutesToTime } from '@/lib/date';
-import { formatBRL, formatDuration } from '@/lib/format';
+import {
+  addMinutesToTime,
+  isoWeekday,
+  timeToMinutes,
+} from '@/lib/date';
+import { formatBRL, formatDuration, formatTime } from '@/lib/format';
 import type { AppointmentInput } from '@/lib/types';
+
+interface ValidationResult {
+  ok: boolean;
+  message: string | null;
+  workingWindow: { start: string; end: string } | null;
+}
 
 interface Props {
   initialDate: string;
@@ -61,6 +73,98 @@ export function AppointmentForm({
     return addMinutesToTime(form.start_time, selectedService.duration_minutes);
   }, [selectedService, form.start_time]);
 
+  const schedulesState = useProfessionalSchedules(form.professional_id || null);
+  const dayAppointmentsState = useDayAppointments(
+    form.appointment_date,
+    form.professional_id || null,
+  );
+
+  const daySchedule = useMemo(() => {
+    if (!form.professional_id || !form.appointment_date) return null;
+    const weekday = isoWeekday(form.appointment_date);
+    if (weekday === null) return null;
+    return (
+      schedulesState.schedules.find(
+        (entry) => entry.day_of_week === weekday,
+      ) ?? null
+    );
+  }, [
+    schedulesState.schedules,
+    form.appointment_date,
+    form.professional_id,
+  ]);
+
+  const validation: ValidationResult = useMemo(() => {
+    if (!form.professional_id) {
+      return { ok: false, message: null, workingWindow: null };
+    }
+    if (schedulesState.isLoading) {
+      return { ok: false, message: null, workingWindow: null };
+    }
+    if (!daySchedule || !daySchedule.is_working) {
+      return {
+        ok: false,
+        message:
+          'Profissional não atende neste dia da semana. Escolha outra data.',
+        workingWindow: null,
+      };
+    }
+
+    const window = {
+      start: daySchedule.start_time,
+      end: daySchedule.end_time,
+    };
+
+    if (!form.start_time) {
+      return { ok: false, message: null, workingWindow: window };
+    }
+    if (!selectedService) {
+      return { ok: false, message: null, workingWindow: window };
+    }
+
+    const startMin = timeToMinutes(form.start_time);
+    const endMin = timeToMinutes(endTime);
+    const windowStart = timeToMinutes(window.start);
+    const windowEnd = timeToMinutes(window.end);
+
+    if (startMin < windowStart || endMin > windowEnd) {
+      return {
+        ok: false,
+        message: `Horário fora do expediente do profissional (${formatTime(window.start)} – ${formatTime(window.end)}).`,
+        workingWindow: window,
+      };
+    }
+
+    if (dayAppointmentsState.isLoading) {
+      return { ok: false, message: null, workingWindow: window };
+    }
+
+    const conflict = dayAppointmentsState.appointments.find((existing) => {
+      const otherStart = timeToMinutes(existing.start_time);
+      const otherEnd = timeToMinutes(existing.end_time);
+      return startMin < otherEnd && otherStart < endMin;
+    });
+
+    if (conflict) {
+      return {
+        ok: false,
+        message: `Conflito com agendamento existente das ${formatTime(conflict.start_time)} às ${formatTime(conflict.end_time)}.`,
+        workingWindow: window,
+      };
+    }
+
+    return { ok: true, message: null, workingWindow: window };
+  }, [
+    form.professional_id,
+    form.start_time,
+    schedulesState.isLoading,
+    daySchedule,
+    selectedService,
+    endTime,
+    dayAppointmentsState.isLoading,
+    dayAppointmentsState.appointments,
+  ]);
+
   const handleSubmit = async (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     setError(null);
@@ -83,6 +187,13 @@ export function AppointmentForm({
     }
     if (!form.start_time) {
       setError('Informe a hora de início.');
+      return;
+    }
+    if (!validation.ok) {
+      setError(
+        validation.message ??
+          'Verifique os horários antes de criar o agendamento.',
+      );
       return;
     }
 
@@ -108,6 +219,9 @@ export function AppointmentForm({
   };
 
   const isInitializing = services.isLoading || professionals.isLoading;
+  const isCheckingAvailability =
+    Boolean(form.professional_id) &&
+    (schedulesState.isLoading || dayAppointmentsState.isLoading);
 
   return (
     <form onSubmit={handleSubmit} className="space-y-4">
@@ -249,6 +363,43 @@ export function AppointmentForm({
         </p>
       ) : null}
 
+      {form.professional_id && validation.workingWindow ? (
+        <p className="text-xs text-slate-500">
+          Expediente nesse dia:{' '}
+          <span className="font-medium tabular-nums">
+            {formatTime(validation.workingWindow.start)} –{' '}
+            {formatTime(validation.workingWindow.end)}
+          </span>
+        </p>
+      ) : null}
+
+      {validation.message ? (
+        <p
+          role="alert"
+          className="rounded-md border border-amber-200 bg-amber-50 px-3 py-2 text-xs text-amber-800"
+        >
+          {validation.message}
+        </p>
+      ) : null}
+
+      {schedulesState.error ? (
+        <p
+          role="alert"
+          className="rounded-md border border-rose-200 bg-rose-50 px-3 py-2 text-xs text-rose-700"
+        >
+          Erro ao carregar grade do profissional: {schedulesState.error}
+        </p>
+      ) : null}
+
+      {dayAppointmentsState.error ? (
+        <p
+          role="alert"
+          className="rounded-md border border-rose-200 bg-rose-50 px-3 py-2 text-xs text-rose-700"
+        >
+          Erro ao verificar conflitos: {dayAppointmentsState.error}
+        </p>
+      ) : null}
+
       {error ? (
         <p
           role="alert"
@@ -269,10 +420,19 @@ export function AppointmentForm({
         </button>
         <button
           type="submit"
-          disabled={isSaving || isInitializing}
+          disabled={
+            isSaving ||
+            isInitializing ||
+            isCheckingAvailability ||
+            !validation.ok
+          }
           className="rounded-lg bg-brand-600 px-4 py-2 text-sm font-medium text-white hover:bg-brand-700 disabled:cursor-not-allowed disabled:opacity-60"
         >
-          {isSaving ? 'Agendando…' : 'Criar agendamento'}
+          {isSaving
+            ? 'Agendando…'
+            : isCheckingAvailability
+              ? 'Verificando…'
+              : 'Criar agendamento'}
         </button>
       </div>
     </form>

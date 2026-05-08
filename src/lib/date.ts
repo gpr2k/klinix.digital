@@ -94,6 +94,13 @@ export function buildMonthGrid(iso: string): MonthGridDay[] {
   return days;
 }
 
+/** Returns the weekday (0=Sun..6=Sat) for "YYYY-MM-DD" `iso`, in local time. */
+export function isoWeekday(iso: string): number | null {
+  const parsed = parseISODate(iso);
+  if (!parsed) return null;
+  return new Date(parsed.year, parsed.monthIdx, parsed.day).getDay();
+}
+
 /** Adds `delta` months to the YYYY-MM-DD `iso`. Day rolls back if needed. */
 export function shiftMonth(iso: string, delta: number): string {
   const parsed = parseISODate(iso);
