@@ -14,3 +14,14 @@ export function formatDuration(minutes: number): string {
   if (remaining === 0) return `${hours}h`;
   return `${hours}h ${remaining}min`;
 }
+
+/** Parses "HH:MM" or "HH:MM:SS" into total minutes from 00:00. */
+export function timeToMinutes(time: string): number {
+  const [h = '0', m = '0'] = time.split(':');
+  return Number(h) * 60 + Number(m);
+}
+
+/** Trims a Postgres `time` value ("HH:MM:SS") to "HH:MM" for inputs. */
+export function toTimeInputValue(time: string): string {
+  return time.slice(0, 5);
+}
