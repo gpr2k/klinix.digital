@@ -14,6 +14,29 @@
 
 
 -- -----------------------------------------------------------------------------
+-- 0. Grants para o role `authenticated`
+-- -----------------------------------------------------------------------------
+-- O bootstrap dev (klinix_setup.sql) habilitou GRANT/RLS pro role `anon`. Como
+-- agora o app usa Supabase Auth, todas as queries autenticadas vêm com o role
+-- `authenticated` no JWT — sem GRANT explícito o PostgREST devolve 42501
+-- (`permission denied for table ...`) antes mesmo da RLS rodar.
+-- Idempotente: GRANT ... ON é seguro re-executar.
+
+grant usage on schema public to authenticated;
+
+grant select, insert, update, delete on all tables    in schema public to authenticated;
+grant usage, select                  on all sequences in schema public to authenticated;
+grant execute                        on all functions in schema public to authenticated;
+
+alter default privileges in schema public
+  grant select, insert, update, delete on tables    to authenticated;
+alter default privileges in schema public
+  grant usage, select                  on sequences to authenticated;
+alter default privileges in schema public
+  grant execute                        on functions to authenticated;
+
+
+-- -----------------------------------------------------------------------------
 -- 1. Helper: current_user_role()
 -- -----------------------------------------------------------------------------
 -- Lê o role do usuário autenticado a partir de public.users (que já é
